@@ -48,22 +48,46 @@ flux는 4가지 파트로 구성된다.
 
 ### 📍 Dispatcher
 
-- **디스패쳐는 액션을 받아서, 그 액션을 디스패쳐에 등록된 스토어에 디스패치한다**.
+- 디스패쳐는 Flux앱에서 **모든 데이터의 흐름을 관리하는 중앙 허브**이다.
+- 디스패쳐는 액션을 받아서, 스토어에 액션을 디스패치한다.
 - 모든 스토어는 모든 액션을 받는다. 
 - 애플리케이션 마다 하나의 싱글턴 디스패쳐가 있다.
 - 예시
-    - 유저가 타이틀을 입력하고 엔터를 친다.
+    - 유저가 타이틀을 입력하고, 제출한다.
     - 뷰가 이벤트를 받아서, "add-todo" 액션을 디스패치한다.
     - 모든 스토어는 이 액션을 받게 된다.
+
 
 ### 📍 Store
 
 - **스토어는 애플리케이션의 데이터를 담고 있다**.
-- 스토어는 애플리케이션의 디스패쳐에 등록하여, 액션을 받을 수 있도록 한다.
+- 스토어는 애플리케이션의 디스패쳐를 등록하여, 액션을 받을 수 있도록 한다.
+- 스토어는 디스패쳐와 함께 콜백을 등록한다.  
 - 예시
     - 스토어는 "add-todo"액션을 받는다.
     - 스토어는 이 액션이 관련 있는지를 확인하고, todo list에 todo를 추가한다.
     - 스토어는 데이터를 업데이트하고, 'change' 이벤트를 전파한다.
+```javascript
+class TodoStore extends ReduceStore {
+  constructor(){
+    super(TodoDispatcher);
+  }
+  getInitialState(){
+    return Immutable.OrderedMap();
+  }
+  reduce(state, action){ // must be pure and have no side-effects.
+    switch(action.type){
+      case TodoActionTypes.TOGGLE_TODO:
+        return state.update(action.id, todo => todo.set('complete', !todo.complete));
+      default: 
+        return state;
+    }
+  }
+}
+
+```
+
+
 
 ### 📍 Actions
 
@@ -73,16 +97,15 @@ flux는 4가지 파트로 구성된다.
 - 액션은 그 액션의 구체적인 구현에 대해서는 설명하지 않아야 한다.
     - 액션의 네이밍은 'delete-user' 정도로 사용하면 된다. 'delete-user-id', 'clear-user-data', 'refresh-credentials'는 너무 구체적일 수 있다. 
     - 모든 스토어는 액션을 받아서 그 스토어의 방식대로 'delete-user' 액션을 처리하게 된다.
-    
 - 예시
     - 유저가 'delete'를 클릭하면, "delete-user" 액션을 디스패치하게 된다.
     
-        ```
-          {
-            type: 'delete-todo',
-            todoID: '1234',
-          }
-        ```
+      ```
+        {
+          type: 'delete-todo',
+          todoID: '1234',
+        }
+      ```
 
 ### 📍 Views
 
@@ -123,9 +146,9 @@ flux는 4가지 파트로 구성된다.
 
 Flux app에서 Flux에 대해 알고 있는 곳은 container 가 유일하다.
 따라서, 이 컨테이너에 콜백을 정의하여, View에게 내려주어야 한다.
-뷰는 액션을 직접적으로 dispatch하기 않고, 이렇게 전달받은 액션을 dispatch하게 된다.
+뷰는 액션을 직접적으로 dispatch하지 않고, 이렇게 전달받은 액션을 dispatch하게 된다.
 
-- 주요한 일은 스토어에서 정보를 가져와서 그 state에 저장한다.
+- 스토어에서 정보를 가져와서 state에 저장한다.
 - `props`가 없고, UI 로직도 없다.
 
 ### Views
@@ -134,3 +157,8 @@ Flux app에서 Flux에 대해 알고 있는 곳은 container 가 유일하다.
 - 모든 UI와 렌더링 로직이 있다.
 - props로 모든 정보와 콜백을 받는다.
 
+
+
+## 참고
+- [flux-concepts - flux github](https://github.com/facebook/flux/tree/master/examples/flux-concepts)
+- [Flux: Actions and the Dispatcher - React](http://reactjs.org/blog/2014/07/30/flux-actions-and-the-dispatcher.html)
