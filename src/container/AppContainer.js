@@ -18,6 +18,7 @@ Flux app에서 Flux에 대해 알고 있는 곳은 container 가 유일하다.
 function getState(){
   return {
     todos: TodoStore.getState(),
+    onAddTodo: TodoActions.addTodo,
     onDeleteTodo: TodoActions.deleteTodo,
     onToggleTodo: TodoActions.toggleTodo,
   };
