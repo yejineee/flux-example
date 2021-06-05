@@ -1,10 +1,13 @@
 import './App.css';
+import Main from './components/Main';
+import Footer from './components/Footer';
 
-function App() {
+function App(props) {
   return (
     <div className="App">
-      Flux Example
-    </div>
+      <Main {...props} />
+      <Footer {...props} />
+    </div>  
   );
 }
 
