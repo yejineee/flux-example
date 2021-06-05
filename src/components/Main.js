@@ -16,7 +16,6 @@ function Todo ({todo : {id, complete, title}, onToggleTodo, onDeleteTodo}){
 
 
 function Main({todos, ...rest}){
-  console.log(rest)
   return (
     <section id='main'>
       <ul id='todo-list'>
