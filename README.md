@@ -37,81 +37,54 @@ flux에서의 데이터 흐름은 **단방향**이다.
 3. 스토어는 액션을 처리하고, 데이터를 뷰에게 전달한다.
 4. 뷰는 새로운 데이터를 리렌더링한다.
 
-## 🌟 flux-concepts
-
-flux는 4가지 파트로 구성된다.
-
-- Dispatcher
-- Store
-- Action
-- View
-
 ### 📍 Dispatcher
 
-- 디스패쳐는 Flux앱에서 **모든 데이터의 흐름을 관리하는 중앙 허브**이다.
-- 디스패쳐는 액션을 받아서, 스토어에 액션을 디스패치한다.
+- **디스패쳐는 액션을 받아서, 그 액션을 디스패쳐에 등록된 스토어에 디스패치한다**.
 - 모든 스토어는 모든 액션을 받는다. 
 - 애플리케이션 마다 하나의 싱글턴 디스패쳐가 있다.
 - 예시
-    - 유저가 타이틀을 입력하고, 제출한다.
+    - 유저가 타이틀을 입력하고 엔터를 친다.
     - 뷰가 이벤트를 받아서, "add-todo" 액션을 디스패치한다.
     - 모든 스토어는 이 액션을 받게 된다.
-
 
 ### 📍 Store
 
 - **스토어는 애플리케이션의 데이터를 담고 있다**.
-- 스토어는 애플리케이션의 디스패쳐를 등록하여, 액션을 받을 수 있도록 한다.
-- 스토어는 디스패쳐와 함께 콜백을 등록한다.  
+- 스토어에 있는 데이타는 반드시 **액션에 의해서만 변경**된다. 
+    - 절대 public setter를 스토어에 두지 않는다.
+- 스토어는 애플리케이션의 디스패쳐에 등록하여, 액션을 받을 수 있도록 한다.
+    - 디스패쳐는 디스패쳐에 등록된 스토어에 액션을 디스패치한다.
+- 스토어의 데이터가 변경될 때마다 `change` 이벤트를 전파한다.
 - 예시
     - 스토어는 "add-todo"액션을 받는다.
     - 스토어는 이 액션이 관련 있는지를 확인하고, todo list에 todo를 추가한다.
     - 스토어는 데이터를 업데이트하고, 'change' 이벤트를 전파한다.
-```javascript
-class TodoStore extends ReduceStore {
-  constructor(){
-    super(TodoDispatcher);
-  }
-  getInitialState(){
-    return Immutable.OrderedMap();
-  }
-  reduce(state, action){ // must be pure and have no side-effects.
-    switch(action.type){
-      case TodoActionTypes.TOGGLE_TODO:
-        return state.update(action.id, todo => todo.set('complete', !todo.complete));
-      default: 
-        return state;
-    }
-  }
-}
-
-```
-
-
 
 ### 📍 Actions
 
 - **액션은 애플리케이션의 내부 API를 정의한다**.
+    - 액션은 application과 스토어가 상호작용하기 위한 방법을 제공한다.
 - 액션은 'type'이라는 필드와 여러 데이터를 갖고 있는 단순한 객체이다.
 - 액션은 의미있고, 설명이 잘 되어있는 네이밍이어야 한다.
 - 액션은 그 액션의 구체적인 구현에 대해서는 설명하지 않아야 한다.
     - 액션의 네이밍은 'delete-user' 정도로 사용하면 된다. 'delete-user-id', 'clear-user-data', 'refresh-credentials'는 너무 구체적일 수 있다. 
     - 모든 스토어는 액션을 받아서 그 스토어의 방식대로 'delete-user' 액션을 처리하게 된다.
+    
 - 예시
     - 유저가 'delete'를 클릭하면, "delete-user" 액션을 디스패치하게 된다.
     
-      ```
-        {
-          type: 'delete-todo',
-          todoID: '1234',
-        }
-      ```
+        ```
+          {
+            type: 'delete-todo',
+            todoID: '1234',
+          }
+        ```
 
 ### 📍 Views
 
 - 스토어에 있는 데이터는 뷰에서 보여지게 된다.
-- **뷰에서 스토어에 있는 데이터를 사용하면, 뷰는 그 스토어에서 발생하는 `change` 이벤트를 구독하게 된다.**
-- 따라서, 스토어가 change 이벤트를 전파하면, 뷰는 새로운 데이터를 받아서 리렌더링하게 된다.
+- **뷰가 스토어에 있는 데이터를 사용하면, 뷰는 그 스토어에서 발생하는 `change` 이벤트를 구독하게 된다.**
+- 스토어가 change 이벤트를 전파하면, 뷰는 새로운 데이터를 받아서 리렌더링하게 된다.
 - 유저가 애플리케이션의 인터페이스와 상호작용하는 과정에서, 뷰가 액션을 디스패치하게 된다.
 - 예시
     - 메인 뷰가 TodoStore를 구독한다.
@@ -124,7 +97,6 @@ class TodoStore extends ReduceStore {
 
 
     
-
 ## 🌟 Best Practices
 
 ### Stores
